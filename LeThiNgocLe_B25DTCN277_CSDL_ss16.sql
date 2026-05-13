@@ -147,4 +147,24 @@ on Rentals(start_date, expected_return_date);
 
 -- Phan 5: vw_vehicle_status_summary
 -- cau 1:
+delimiter // 
+create trigger trg_after_payment_insert
+after insert on Payments
+for each row
+begin
+    update Rentals
+    set status = 'Completed'
+    where rental_id = new.rental_id;
+
+    update Vehicles
+    set status = 'Available'
+    where vehicle_id = (
+        select vehicle_id
+        from Rentals
+        where rental_id = new.rental_id
+    );
+end //
+delimiter ;
+
+-- cau2 
 
